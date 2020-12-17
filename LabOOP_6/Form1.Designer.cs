@@ -41,7 +41,7 @@ namespace LabOOP_6
             this.radioButtonOrange = new System.Windows.Forms.RadioButton();
             this.radioButtonYellow = new System.Windows.Forms.RadioButton();
             this.buttonClear = new System.Windows.Forms.Button();
-            this.labelСoords = new System.Windows.Forms.Label();
+            this.labelCoords = new System.Windows.Forms.Label();
             this.groupBoxChoose.SuspendLayout();
             this.groupBoxColor.SuspendLayout();
             this.SuspendLayout();
@@ -54,6 +54,7 @@ namespace LabOOP_6
             this.panelPaint.Size = new System.Drawing.Size(600, 600);
             this.panelPaint.TabIndex = 0;
             this.panelPaint.MouseClick += new System.Windows.Forms.MouseEventHandler(this.panelPaint_MouseClick);
+            this.panelPaint.MouseMove += new System.Windows.Forms.MouseEventHandler(this.panelPaint_MouseMove);
             // 
             // groupBoxChoose
             // 
@@ -175,34 +176,35 @@ namespace LabOOP_6
             // 
             // buttonClear
             // 
-            this.buttonClear.Location = new System.Drawing.Point(625, 531);
+            this.buttonClear.Location = new System.Drawing.Point(625, 527);
             this.buttonClear.Name = "buttonClear";
-            this.buttonClear.Size = new System.Drawing.Size(244, 56);
+            this.buttonClear.Size = new System.Drawing.Size(245, 56);
             this.buttonClear.TabIndex = 3;
             this.buttonClear.Text = "Очистить полотно";
             this.buttonClear.UseVisualStyleBackColor = true;
             // 
-            // labelСoords
+            // labelCoords
             // 
-            this.labelСoords.AutoSize = true;
-            this.labelСoords.Location = new System.Drawing.Point(623, 595);
-            this.labelСoords.Name = "labelСoords";
-            this.labelСoords.Size = new System.Drawing.Size(136, 17);
-            this.labelСoords.TabIndex = 4;
-            this.labelСoords.Text = "Координаты мыши:";
+            this.labelCoords.AutoSize = true;
+            this.labelCoords.Location = new System.Drawing.Point(626, 590);
+            this.labelCoords.Name = "labelCoords";
+            this.labelCoords.Size = new System.Drawing.Size(136, 17);
+            this.labelCoords.TabIndex = 4;
+            this.labelCoords.Text = "Координаты мыши:";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(882, 628);
-            this.Controls.Add(this.labelСoords);
+            this.Controls.Add(this.labelCoords);
             this.Controls.Add(this.buttonClear);
             this.Controls.Add(this.groupBoxColor);
             this.Controls.Add(this.groupBoxChoose);
             this.Controls.Add(this.panelPaint);
             this.Name = "Form1";
             this.Text = "Form1";
+            this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Form1_MouseMove);
             this.groupBoxChoose.ResumeLayout(false);
             this.groupBoxChoose.PerformLayout();
             this.groupBoxColor.ResumeLayout(false);
@@ -226,7 +228,7 @@ namespace LabOOP_6
         private System.Windows.Forms.RadioButton radioButtonOrange;
         private System.Windows.Forms.RadioButton radioButtonYellow;
         private System.Windows.Forms.Button buttonClear;
-        private System.Windows.Forms.Label labelСoords;
+        private System.Windows.Forms.Label labelCoords;
     }
 }
 

@@ -165,7 +165,7 @@ namespace LabOOP_6
             SolidBrush fillGreen = new SolidBrush(Color.Lime);
             if (radioButtonEllipse.Checked == true)
             {
-                Ellipse krug = new Ellipse(e.X - 25, e.Y - 25);
+                //добавить хранилище
                 RectangleF ellipse_rectangle = new RectangleF(e.X - 25, e.Y - 25, 50, 50);
                 chooseColor();
                 switch (color)
@@ -190,25 +190,90 @@ namespace LabOOP_6
             }
             if (radioButtonRectangle.Checked == true)
             {
-                Rectangle kvadrat = new Rectangle(e.X - 25, e.Y - 25);
-                //Rectangle rectangle = new Rectangle(e.X - 25, e.Y - 25, 50, 50);
+                //добавить хранилище
+
                 chooseColor();
                 switch (color)
                 {
                     case 1:
                         panelPaint.CreateGraphics().DrawRectangle(red, e.X - 25, e.Y - 25, 50, 50);
+                        panelPaint.CreateGraphics().FillRectangle(fillRed, e.X - 25, e.Y - 25, 50, 50);
                         break;
                     case 2:
                         panelPaint.CreateGraphics().DrawRectangle(orange, e.X - 25, e.Y - 25, 50, 50);
+                        panelPaint.CreateGraphics().FillRectangle(fillOrange, e.X - 25, e.Y - 25, 50, 50);
                         break;
                     case 3:
                         panelPaint.CreateGraphics().DrawRectangle(yellow, e.X - 25, e.Y - 25, 50, 50);
+                        panelPaint.CreateGraphics().FillRectangle(fillYellow, e.X - 25, e.Y - 25, 50, 50);
                         break;
                     case 4:
                         panelPaint.CreateGraphics().DrawRectangle(green, e.X - 25, e.Y - 25, 50, 50);
+                        panelPaint.CreateGraphics().FillRectangle(fillGreen, e.X - 25, e.Y - 25, 50, 50);
+                        break;
+                }
+            }
+            if (radioButtonTriangle.Checked == true)
+            {
+                PointF point1 = new PointF(e.X - 25, e.Y + 25);
+                PointF point2 = new PointF(e.X + 25, e.Y + 25);
+                PointF point3 = new PointF(e.X, e.Y - 25);
+                PointF[] trianglePoints = {point1, point2, point3};
+                //добавить хранилище
+
+                chooseColor();
+                switch (color)
+                {
+                    case 1:
+                        panelPaint.CreateGraphics().DrawPolygon(red, trianglePoints);
+                        panelPaint.CreateGraphics().FillPolygon(fillRed, trianglePoints);
+                        break;
+                    case 2:
+                        panelPaint.CreateGraphics().DrawPolygon(orange, trianglePoints);
+                        panelPaint.CreateGraphics().FillPolygon(fillOrange, trianglePoints);
+                        break;
+                    case 3:
+                        panelPaint.CreateGraphics().DrawPolygon(yellow, trianglePoints);
+                        panelPaint.CreateGraphics().FillPolygon(fillYellow, trianglePoints);
+                        break;
+                    case 4:
+                        panelPaint.CreateGraphics().DrawPolygon(green, trianglePoints);
+                        panelPaint.CreateGraphics().FillPolygon(fillGreen, trianglePoints);
+                        break;
+                }
+            }
+            if (radioButtonLine.Checked == true)
+            {
+                //добавить хранилище
+                chooseColor();
+                switch (color)
+                {
+                    case 1:
+                        panelPaint.CreateGraphics().DrawLine(red, e.X - 25, e.Y, e.X + 25, e.Y);
+                        break;
+                    case 2:
+                        panelPaint.CreateGraphics().DrawLine(orange, e.X - 25, e.Y, e.X + 25, e.Y);
+                        break;
+                    case 3:
+                        panelPaint.CreateGraphics().DrawLine(yellow, e.X - 25, e.Y, e.X + 25, e.Y);
+                        break;
+                    case 4:
+                        panelPaint.CreateGraphics().DrawLine(green, e.X - 25, e.Y, e.X + 25, e.Y);
                         break;
                 }
             }
         }
+
+        private void panelPaint_MouseMove(object sender, MouseEventArgs e)
+        {
+            labelCoords.Text = "Координаты мыши: " + e.X.ToString() + " " + e.Y.ToString();
+        }
+
+        private void Form1_MouseMove(object sender, MouseEventArgs e)
+        {
+            labelCoords.Text = "Координаты мыши: 0 0";
+        }
+
+
     }
 }
