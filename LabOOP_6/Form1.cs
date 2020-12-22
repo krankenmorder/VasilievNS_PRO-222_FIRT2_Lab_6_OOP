@@ -18,10 +18,24 @@ namespace LabOOP_6
         }
 
         int color = 0;
+        int indexin = 0;
+        static int index = 0; //кол-во нарисованных кругов
         static int razmer = 10;
-        Storage storage = new Storage(razmer);
+        Storage sklad = new Storage(razmer);
 
-        class Ellipse
+        class Figures
+        {
+            public Figures()
+            {
+                
+            }
+            ~Figures()
+            {
+
+            }
+        }
+
+        class Ellipse: Figures
         {
             public int x, y;
             public Ellipse()
@@ -40,7 +54,7 @@ namespace LabOOP_6
             }
         }
 
-        class Rectangle
+        class Rectangle: Figures
         {
             public int x, y;
             public Rectangle()
@@ -59,20 +73,26 @@ namespace LabOOP_6
             }
         }
 
-        class Triangle
+        class Triangle: Figures
         {
-            public int x, y, z;
+            public int x1, x2, x3, y1, y2, y3;
             public Triangle()
             {
-                x = 0;
-                y = 0;
-                z = 0;
+                x1 = 0;
+                x2 = 0;
+                x3 = 0;
+                y1 = 0;
+                y2 = 0;
+                y3 = 0;
             }
-            public Triangle(int x, int y, int z)
+            public Triangle(int x1, int y1, int x2, int y2, int x3, int y3)
             {
-                this.x = x;
-                this.y = y;
-                this.z = z;
+                this.x1 = x1;
+                this.y1 = y1;
+                this.x2 = x2;
+                this.y2 = y2;
+                this.x3 = x3;
+                this.y3 = y3;
             }
             ~Triangle()
             {
@@ -81,18 +101,22 @@ namespace LabOOP_6
         }
 
 
-        class Line
+        class Line: Figures
         {
-            public int x, y;
+            public int x1, y1, x2, y2;
             public Line()
             {
-                x = 0;
-                y = 0;
+                x1 = 0;
+                y1 = 0;
+                x2 = 0;
+                y2 = 0;
             }
-            public Line(int x, int y)
+            public Line(int x1, int y1, int x2, int y2)
             {
-                this.x = x;
-                this.y = y;
+                this.x1 = x1;
+                this.y1 = y1;
+                this.x2 = x2;
+                this.y2 = y2;
             }
             ~Line()
             {
@@ -102,26 +126,21 @@ namespace LabOOP_6
 
         class Storage
         {
-            public Ellipse[] ellipses;
-            public Rectangle[] rectangles;
-            public Triangle[] triangles;
-            public Line[] lines;
-
+            public Figures[] objects;
             public Storage(int count)
             {
-                ellipses = new Ellipse[count];
-                rectangles = new Rectangle[count];
-                triangles = new Triangle[count];
-                lines = new Line[count];
-
+                objects = new Figures[count];
+                
                 for (int i = 0; i < count; i++)
                 {
-                    ellipses[i] = null;
-                    rectangles[i] = null;
-                    triangles[i] = null;
-                    lines[i] = null;
-
+                    objects[i] = null;
                 }
+            }
+
+            public void addObject(int index, ref Figures object1, ref int indexin)
+            {
+                objects[index] = object1;
+                indexin = index;
             }
 
             ~Storage()
@@ -150,9 +169,6 @@ namespace LabOOP_6
             }
         }
 
-        public void createEllipse() { 
-        }
-
         private void panelPaint_MouseClick(object sender, MouseEventArgs e)
         {
             Pen red = new Pen(Color.Red, 5);
@@ -163,9 +179,12 @@ namespace LabOOP_6
             SolidBrush fillYellow = new SolidBrush(Color.Yellow);
             Pen green = new Pen(Color.Lime, 5);
             SolidBrush fillGreen = new SolidBrush(Color.Lime);
+
+            Figures figure = new Figures();
+
             if (radioButtonEllipse.Checked == true)
             {
-                //добавить хранилище
+                figure = new Ellipse(e.X, e.Y);
                 RectangleF ellipse_rectangle = new RectangleF(e.X - 25, e.Y - 25, 50, 50);
                 chooseColor();
                 switch (color)
@@ -190,7 +209,7 @@ namespace LabOOP_6
             }
             if (radioButtonRectangle.Checked == true)
             {
-                //добавить хранилище
+                figure = new Rectangle(e.X, e.Y);
 
                 chooseColor();
                 switch (color)
@@ -219,7 +238,8 @@ namespace LabOOP_6
                 PointF point2 = new PointF(e.X + 25, e.Y + 25);
                 PointF point3 = new PointF(e.X, e.Y - 25);
                 PointF[] trianglePoints = {point1, point2, point3};
-                //добавить хранилище
+
+                figure = new Triangle(e.X - 25, e.Y + 25, e.X + 25, e.Y + 25, e.X, e.Y - 25);
 
                 chooseColor();
                 switch (color)
@@ -244,7 +264,7 @@ namespace LabOOP_6
             }
             if (radioButtonLine.Checked == true)
             {
-                //добавить хранилище
+                figure = new Line(e.X - 25, e.Y, e.X + 25, e.Y);
                 chooseColor();
                 switch (color)
                 {
@@ -262,6 +282,9 @@ namespace LabOOP_6
                         break;
                 }
             }
+            sklad.addObject(index, ref figure, ref indexin);
+            index++;
+
         }
 
         private void panelPaint_MouseMove(object sender, MouseEventArgs e)

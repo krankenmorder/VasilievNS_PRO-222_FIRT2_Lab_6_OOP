@@ -202,6 +202,7 @@ namespace LabOOP_6
             this.Controls.Add(this.groupBoxColor);
             this.Controls.Add(this.groupBoxChoose);
             this.Controls.Add(this.panelPaint);
+            this.KeyPreview = true;
             this.Name = "Form1";
             this.Text = "Form1";
             this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Form1_MouseMove);
