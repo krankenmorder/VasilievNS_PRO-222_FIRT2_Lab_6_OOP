@@ -19,15 +19,19 @@ namespace LabOOP_6
 
         int color = 0;
         int indexin = 0;
+        int ctrl = 0;
+        int figureNow = 1;
         static int index = 0; //кол-во нарисованных кругов
-        static int razmer = 10;
+        static int razmer = 20;
         Storage sklad = new Storage(razmer);
 
         class Figures
         {
+            public Color color = Color.Black;
+            public Color fillColor = Color.White;
             public Figures()
             {
-                
+
             }
             ~Figures()
             {
@@ -35,7 +39,7 @@ namespace LabOOP_6
             }
         }
 
-        class Ellipse: Figures
+        class Ellipse : Figures
         {
             public int x, y;
             public Ellipse()
@@ -54,7 +58,7 @@ namespace LabOOP_6
             }
         }
 
-        class Rectangle: Figures
+        class Rectangle : Figures
         {
             public int x, y;
             public Rectangle()
@@ -73,7 +77,7 @@ namespace LabOOP_6
             }
         }
 
-        class Triangle: Figures
+        class Triangle : Figures
         {
             public int x1, x2, x3, y1, y2, y3;
             public Triangle()
@@ -101,7 +105,7 @@ namespace LabOOP_6
         }
 
 
-        class Line: Figures
+        class Line : Figures
         {
             public int x1, y1, x2, y2;
             public Line()
@@ -130,17 +134,43 @@ namespace LabOOP_6
             public Storage(int count)
             {
                 objects = new Figures[count];
-                
+
                 for (int i = 0; i < count; i++)
                 {
                     objects[i] = null;
                 }
             }
 
-            public void addObject(int index, ref Figures object1, ref int indexin)
+            public void addObject(int index, ref Figures object1, int count, ref int indexin)
             {
+                while (objects[index] != null)
+                {
+                    index = (index + 1) % count;
+                }
                 objects[index] = object1;
                 indexin = index;
+            }
+
+            public void deleteObject(int index)
+            {
+                objects[index] = null;
+                index--;
+            }
+
+            public bool checkEmpty(int index)
+            {   // Проверяет занято ли место хранилище
+                if (objects[index] == null)
+                    return true;
+                else return false;
+            }
+
+            public int fill(int size)
+            { // Определяет кол-во занятых мест в хранилище
+                int countFilled = 0;
+                for (int i = 0; i < size; ++i)
+                    if (!checkEmpty(i))
+                        ++countFilled;
+                return countFilled;
             }
 
             ~Storage()
@@ -171,120 +201,116 @@ namespace LabOOP_6
 
         private void panelPaint_MouseClick(object sender, MouseEventArgs e)
         {
-            Pen red = new Pen(Color.Red, 5);
-            SolidBrush fillRed = new SolidBrush(Color.Red);
-            Pen orange = new Pen(Color.Orange, 5);
-            SolidBrush fillOrange = new SolidBrush(Color.Orange);
-            Pen yellow = new Pen(Color.Yellow, 5);
-            SolidBrush fillYellow = new SolidBrush(Color.Yellow);
-            Pen green = new Pen(Color.Lime, 5);
-            SolidBrush fillGreen = new SolidBrush(Color.Lime);
-
             Figures figure = new Figures();
+            switch (figureNow)
+            {   // В зависимости какая фигура выбрана
+                case 0:
+                    return;
+                case 1:
+                    figure = new Ellipse(e.X, e.Y);
+                    break;
+                case 2:
+                    figure = new Rectangle(e.X, e.Y);
+                    break;
+            }
+            //Проверка на наличие фигуры на данных координатах
+            int c = checkFigure(ref sklad, 20, e.X - 25, e.Y - 25);
+            if (c != -1)
+            {   // Если на этом месте уже нарисована фигура
+                if (Control.ModifierKeys == Keys.Control)
+                {   // Если нажат ctrl, то выделяем несколько объектов
+                    if (ctrl == 0)
+                    {
+                        paintFigure(Color.Navy, 4, ref sklad, indexin);
+                        ctrl = 1;
+                    }
+                    // Вызываем функцию отрисовки фигуры  
+                    paintFigure(Color.Red, 4, ref sklad, c);
+                }
+                else
+                {   // Иначе выделяем только один объект
+                    // Снимаем выделение у всех объектов хранилища
+                    removeSelectFigure(ref sklad);
+                    paintFigure(Color.Red, 4, ref sklad, c);
+                }
+                return;
+            }
+            // Добавляем фигуру в хранилище   
+            sklad.addObject(index, ref figure, 20, ref indexin);
+            // Снимаем выделение у всех объектов хранилища
+            removeSelectFigure(ref sklad);
+            paintFigure(Color.Red, 4, ref sklad, indexin);
+            ++index;
+            ctrl = 0;
+        }
 
-            if (radioButtonEllipse.Checked == true)
+        private void paintFigure(Color color, int size, ref Storage storage, int index)
+        {   // Рисует фигуру на панели          
+            // Объявляем объект - карандаш, которым будем рисовать контур
+            Pen pen = new Pen(color, size);
+            SolidBrush figurefillcolor;
+            if (!storage.checkEmpty(index))
             {
-                figure = new Ellipse(e.X, e.Y);
-                RectangleF ellipse_rectangle = new RectangleF(e.X - 25, e.Y - 25, 50, 50);
-                chooseColor();
-                switch (color)
+                storage.objects[index].color = color;
+                figurefillcolor = new SolidBrush(storage.objects[index].fillColor);
+                if (storage.objects[index] as Ellipse != null)
+                {   // Если в хранилище круг
+                    Ellipse circle = storage.objects[index] as Ellipse;
+                    panelPaint.CreateGraphics().DrawEllipse(pen, circle.x - 25, circle.y - 25, 50, 50);
+                    panelPaint.CreateGraphics().FillEllipse( figurefillcolor, circle.x - 25, circle.y - 25, 50, 50);
+                }
+               
+                    else
+                    {
+                        if (storage.objects[index] as Rectangle != null)
+                        {   // Если в хранилище квадрат
+                            Rectangle square = storage.objects[index] as Rectangle;
+                            panelPaint.CreateGraphics().DrawRectangle(pen, square.x - 25, square.y - 25, 50, 50);
+                            panelPaint.CreateGraphics().FillRectangle(figurefillcolor, square.x - 25, square.y - 25, 50, 50);
+                        }
+                    }
+                
+            }
+        }
+
+        private int checkFigure(ref Storage storage, int size, int x, int y)
+        {   // Проверяет есть ли уже фигура с такими же координатами в хранилище
+            if (storage.fill(size) != 0)
+            {
+                for (int i = 0; i < size; ++i)
                 {
-                    case 1:
-                        panelPaint.CreateGraphics().DrawEllipse(red, ellipse_rectangle);
-                        panelPaint.CreateGraphics().FillEllipse(fillRed, ellipse_rectangle);
-                        break;
-                    case 2:
-                        panelPaint.CreateGraphics().DrawEllipse(orange, ellipse_rectangle);
-                        panelPaint.CreateGraphics().FillEllipse(fillOrange, ellipse_rectangle);
-                        break;
-                    case 3:
-                        panelPaint.CreateGraphics().DrawEllipse(yellow, ellipse_rectangle);
-                        panelPaint.CreateGraphics().FillEllipse(fillYellow, ellipse_rectangle);
-                        break;
-                    case 4:
-                        panelPaint.CreateGraphics().DrawEllipse(green, ellipse_rectangle);
-                        panelPaint.CreateGraphics().FillEllipse(fillGreen, ellipse_rectangle);
-                        break;
+                    if (!storage.checkEmpty(i))
+                    {   // Если под i индексом в хранилище есть объект
+                        if (storage.objects[i] as Ellipse != null)
+                        {   // Если в хранилище круг
+                            Ellipse ellipse = storage.objects[i] as Ellipse;
+                            if (((x - ellipse.x - 25) * (x - ellipse.x - 25) + (y - ellipse.y - 25) * (y - ellipse.y - 25)) < (50 * 50))
+                                return i;
+                        }
+                            else
+                            {
+                                if (storage.objects[i] as Rectangle != null)
+                                {   // Если в хранилище квадрат
+                                    Rectangle rectangle = storage.objects[i] as Rectangle;
+                                    if (rectangle.x <= x && x <= (rectangle.x + 25) && rectangle.y <= y && y <= (rectangle.y + 25))
+                                    return i;
+                                }
+                            }
+                    }
                 }
             }
-            if (radioButtonRectangle.Checked == true)
-            {
-                figure = new Rectangle(e.X, e.Y);
+            return -1;
+        }
 
-                chooseColor();
-                switch (color)
-                {
-                    case 1:
-                        panelPaint.CreateGraphics().DrawRectangle(red, e.X - 25, e.Y - 25, 50, 50);
-                        panelPaint.CreateGraphics().FillRectangle(fillRed, e.X - 25, e.Y - 25, 50, 50);
-                        break;
-                    case 2:
-                        panelPaint.CreateGraphics().DrawRectangle(orange, e.X - 25, e.Y - 25, 50, 50);
-                        panelPaint.CreateGraphics().FillRectangle(fillOrange, e.X - 25, e.Y - 25, 50, 50);
-                        break;
-                    case 3:
-                        panelPaint.CreateGraphics().DrawRectangle(yellow, e.X - 25, e.Y - 25, 50, 50);
-                        panelPaint.CreateGraphics().FillRectangle(fillYellow, e.X - 25, e.Y - 25, 50, 50);
-                        break;
-                    case 4:
-                        panelPaint.CreateGraphics().DrawRectangle(green, e.X - 25, e.Y - 25, 50, 50);
-                        panelPaint.CreateGraphics().FillRectangle(fillGreen, e.X - 25, e.Y - 25, 50, 50);
-                        break;
+        private void removeSelectFigure(ref Storage storage)
+        {   // Снимает выделение у всех элементов хранилища
+            for (int i = 0; i < 20; ++i)
+            {
+                if (!storage.checkEmpty(i))
+                {   // Вызываем функцию отрисовки круга
+                    paintFigure(Color.Black, 5, ref sklad, i);
                 }
             }
-            if (radioButtonTriangle.Checked == true)
-            {
-                PointF point1 = new PointF(e.X - 25, e.Y + 25);
-                PointF point2 = new PointF(e.X + 25, e.Y + 25);
-                PointF point3 = new PointF(e.X, e.Y - 25);
-                PointF[] trianglePoints = {point1, point2, point3};
-
-                figure = new Triangle(e.X - 25, e.Y + 25, e.X + 25, e.Y + 25, e.X, e.Y - 25);
-
-                chooseColor();
-                switch (color)
-                {
-                    case 1:
-                        panelPaint.CreateGraphics().DrawPolygon(red, trianglePoints);
-                        panelPaint.CreateGraphics().FillPolygon(fillRed, trianglePoints);
-                        break;
-                    case 2:
-                        panelPaint.CreateGraphics().DrawPolygon(orange, trianglePoints);
-                        panelPaint.CreateGraphics().FillPolygon(fillOrange, trianglePoints);
-                        break;
-                    case 3:
-                        panelPaint.CreateGraphics().DrawPolygon(yellow, trianglePoints);
-                        panelPaint.CreateGraphics().FillPolygon(fillYellow, trianglePoints);
-                        break;
-                    case 4:
-                        panelPaint.CreateGraphics().DrawPolygon(green, trianglePoints);
-                        panelPaint.CreateGraphics().FillPolygon(fillGreen, trianglePoints);
-                        break;
-                }
-            }
-            if (radioButtonLine.Checked == true)
-            {
-                figure = new Line(e.X - 25, e.Y, e.X + 25, e.Y);
-                chooseColor();
-                switch (color)
-                {
-                    case 1:
-                        panelPaint.CreateGraphics().DrawLine(red, e.X - 25, e.Y, e.X + 25, e.Y);
-                        break;
-                    case 2:
-                        panelPaint.CreateGraphics().DrawLine(orange, e.X - 25, e.Y, e.X + 25, e.Y);
-                        break;
-                    case 3:
-                        panelPaint.CreateGraphics().DrawLine(yellow, e.X - 25, e.Y, e.X + 25, e.Y);
-                        break;
-                    case 4:
-                        panelPaint.CreateGraphics().DrawLine(green, e.X - 25, e.Y, e.X + 25, e.Y);
-                        break;
-                }
-            }
-            sklad.addObject(index, ref figure, ref indexin);
-            index++;
-
         }
 
         private void panelPaint_MouseMove(object sender, MouseEventArgs e)
