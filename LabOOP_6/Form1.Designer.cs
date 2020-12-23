@@ -44,7 +44,7 @@ namespace LabOOP_6
             this.panelPaint.BackColor = System.Drawing.Color.White;
             this.panelPaint.Location = new System.Drawing.Point(12, 12);
             this.panelPaint.Name = "panelPaint";
-            this.panelPaint.Size = new System.Drawing.Size(600, 581);
+            this.panelPaint.Size = new System.Drawing.Size(600, 610);
             this.panelPaint.TabIndex = 0;
             this.panelPaint.MouseClick += new System.Windows.Forms.MouseEventHandler(this.panelPaint_MouseClick);
             // 
@@ -110,7 +110,7 @@ namespace LabOOP_6
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(882, 605);
+            this.ClientSize = new System.Drawing.Size(882, 634);
             this.Controls.Add(this.button1);
             this.Controls.Add(this.groupBoxChoose);
             this.Controls.Add(this.panelPaint);

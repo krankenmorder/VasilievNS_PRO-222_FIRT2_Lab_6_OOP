@@ -138,6 +138,33 @@ namespace LabOOP_6
 			} 
 		};
 
+		private void radioButtonEllipse_CheckedChanged(object sender, EventArgs e) //обработчик события проверки изменения значения RadioButton круга
+		{
+			figureSelect = 1;
+			if (radioButtonEllipse.Checked == false) // если не выбрана фигура
+			{
+				figureSelect = 0;
+			}
+		}
+
+		private void radioButtonLine_CheckedChanged(object sender, EventArgs e) //обработчик события проверки изменения значения RadioButton отрезка
+		{
+			figureSelect = 2;
+			if (radioButtonLine.Checked == false) // если не выбрана фигура
+			{
+				figureSelect = 0;
+			}
+		}
+
+		private void radioButtonRectangle_CheckedChanged(object sender, EventArgs e) //обработчик события проверки изменения значения RadioButton квадрата
+		{
+			figureSelect = 3;
+			if (radioButtonRectangle.Checked == false) // если не выбрана фигура
+			{
+				figureSelect = 0;
+			}
+		}
+
 		private void panelPaint_MouseClick(object sender, MouseEventArgs e) //обработчик события нажатия на панель мышкой
 		{
 			Figures figure = new Figures(); //создание объекта класса "Фигуры"
@@ -183,6 +210,52 @@ namespace LabOOP_6
 			ctrl = 0;
 		}
 
+		private void paintFigure(Color color, int size, ref Storage storage, int index) //функция отрисовки фигуры на полотне
+		{
+			Pen pen = new Pen(color, size); //инициализация "карандашей" и "кистей" для рисования
+			SolidBrush figureFillColor;
+			if (!storage.checkEmpty(index)) //если ячейка в хранилище не пуста
+			{
+				storage.objects[index].color = color;
+				figureFillColor = new SolidBrush(storage.objects[index].fillColor);
+				if (storage.objects[index] as Ellipse != null) //если объект - круг
+				{
+					Ellipse ellipse = storage.objects[index] as Ellipse;
+					panelPaint.CreateGraphics().DrawEllipse(pen, ellipse.x, ellipse.y, ellipse.rad * 2, ellipse.rad * 2);
+					panelPaint.CreateGraphics().FillEllipse(figureFillColor, ellipse.x, ellipse.y, ellipse.rad * 2, ellipse.rad * 2);
+				}
+				else
+				{
+					if (storage.objects[index] as Line != null) //если объект - отрезок
+					{
+						Line line = storage.objects[index] as Line;
+						panelPaint.CreateGraphics().DrawRectangle(pen, line.x, line.y, line.length, line.width);
+						panelPaint.CreateGraphics().FillRectangle(figureFillColor, line.x, line.y, line.length, line.width);
+					}
+					else
+					{
+						if (storage.objects[index] as Rectangle != null) //если объект - квадрат
+						{
+							Rectangle rectangle = storage.objects[index] as Rectangle;
+							panelPaint.CreateGraphics().DrawRectangle(pen, rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+							panelPaint.CreateGraphics().FillRectangle(figureFillColor, rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+						}
+					}
+				}
+			}
+		}
+
+		private void paintAll(ref Storage stg) //функция отрисовки всех элементов хранилища на полотне
+		{
+			for (int i = 0; i < 50; ++i)
+			{
+				if (!stg.checkEmpty(i))
+				{
+					paintFigure(stg.objects[i].color, 4, ref sklad, i);
+				}
+			}
+		}
+
 		private void removeSelectEllipse(ref Storage stg) //удаляем выделенные элементы
 		{
 			for (int i = 0; i < 50; ++i)
@@ -204,6 +277,51 @@ namespace LabOOP_6
 						stg.deleteObject(i);
 				}
 			}
+		}
+
+		private int checkFigure(ref Storage storage, int size, int x, int y) //проверка нахождения на заданных координатах объекта
+		{
+			if (storage.fill(size) != 0) //если размер занятых ячеек хранилища не равен нулю
+			{
+				for (int i = 0; i < size; ++i)
+				{
+					if (!storage.checkEmpty(i)) //если ячейка хранилища не пуста
+					{
+						if (storage.objects[i] as Ellipse != null) //если объект в хранилище - круг
+						{
+							Ellipse ellipse = storage.objects[i] as Ellipse;
+							if (((x - ellipse.x - ellipse.rad) * (x - ellipse.x - ellipse.rad) + (y - ellipse.y - ellipse.rad) * (y - ellipse.y - ellipse.rad)) < (ellipse.rad * ellipse.rad))
+							{
+								return i; //возвращаем индекс объекта
+							}
+						}
+						else
+						{
+							if (storage.objects[i] as Line != null) //если объект в хранилище - отрезок
+							{
+								Line line = storage.objects[i] as Line;
+								if (line.x <= x && x <= (line.x + line.length) && (line.y - 2) <= y && y <= (line.y + line.width))
+								{
+									return i; //возвращаем индекс объекта
+								}
+							}
+							else
+							{
+								if (storage.objects[i] as Rectangle != null) //если объект в хранилище - квадрат
+								{
+									Rectangle rectangle = storage.objects[i] as Rectangle;
+									if (rectangle.x <= x && x <= (rectangle.x + rectangle.size) && rectangle.y <= y && y <= (rectangle.y + rectangle.size))
+									{
+										return i; //возвращаем индекс объекта
+									}
+								}
+							}
+						}
+
+					}
+				}
+			}
+			return -1;
 		}
 
 		private void moveY(ref Storage storage, int y) //функция переноса объекта на панели по Y
@@ -347,124 +465,6 @@ namespace LabOOP_6
 						}
 					}
 				}
-			}
-		}
-
-		private void paintFigure(Color color, int size, ref Storage storage, int index) //функция отрисовки фигуры на полотне
-		{   
-			Pen pen = new Pen(color, size); //инициализация "карандашей" и "кистей" для рисования
-			SolidBrush figureFillColor;
-			if (!storage.checkEmpty(index)) //если ячейка в хранилище не пуста
-			{
-				storage.objects[index].color = color; 
-				figureFillColor = new SolidBrush(storage.objects[index].fillColor);
-				if (storage.objects[index] as Ellipse != null) //если объект - круг
-				{
-					Ellipse ellipse = storage.objects[index] as Ellipse;
-					panelPaint.CreateGraphics().DrawEllipse(pen, ellipse.x, ellipse.y, ellipse.rad * 2, ellipse.rad * 2);
-					panelPaint.CreateGraphics().FillEllipse(figureFillColor, ellipse.x, ellipse.y, ellipse.rad * 2, ellipse.rad * 2);
-				}
-				else
-				{
-					if (storage.objects[index] as Line != null) //если объект - отрезок
-					{
-						Line line = storage.objects[index] as Line;
-						panelPaint.CreateGraphics().DrawRectangle(pen, line.x, line.y, line.length, line.width);
-						panelPaint.CreateGraphics().FillRectangle(figureFillColor, line.x, line.y, line.length, line.width);
-					}
-					else
-					{
-						if (storage.objects[index] as Rectangle != null) //если объект - квадрат
-						{
-							Rectangle rectangle = storage.objects[index] as Rectangle;
-							panelPaint.CreateGraphics().DrawRectangle(pen, rectangle.x, rectangle.y, rectangle.width, rectangle.height);
-							panelPaint.CreateGraphics().FillRectangle(figureFillColor, rectangle.x, rectangle.y, rectangle.width, rectangle.height);
-						}
-					}
-				}
-			}
-		}
-
-		private void paintAll(ref Storage stg) //функция отрисовки всех элементов хранилища на полотне
-		{
-			for (int i = 0; i < 50; ++i)
-			{
-				if (!stg.checkEmpty(i))
-				{
-					paintFigure(stg.objects[i].color, 4, ref sklad, i);
-				}
-			}
-		}
-
-		private int checkFigure(ref Storage storage, int size, int x, int y) //проверка нахождения на заданных координатах объекта
-		{
-			if (storage.fill(size) != 0) //если размер занятых ячеек хранилища не равен нулю
-			{
-				for (int i = 0; i < size; ++i)
-				{
-					if (!storage.checkEmpty(i)) //если ячейка хранилища не пуста
-					{
-						if (storage.objects[i] as Ellipse != null) //если объект в хранилище - круг
-						{
-							Ellipse ellipse = storage.objects[i] as Ellipse;
-							if (((x - ellipse.x - ellipse.rad) * (x - ellipse.x - ellipse.rad) + (y - ellipse.y - ellipse.rad) * (y - ellipse.y - ellipse.rad)) < (ellipse.rad * ellipse.rad))
-							{
-								return i; //возвращаем индекс объекта
-							}
-						}
-						else
-						{
-							if (storage.objects[i] as Line != null) //если объект в хранилище - отрезок
-							{
-								Line line = storage.objects[i] as Line;
-								if (line.x <= x && x <= (line.x + line.length) && (line.y - 2) <= y && 	y <= (line.y + line.width))
-                                {
-									return i; //возвращаем индекс объекта
-								} 
-							}
-							else
-							{
-								if (storage.objects[i] as Rectangle != null) //если объект в хранилище - квадрат
-								{
-									Rectangle rectangle = storage.objects[i] as Rectangle;
-									if (rectangle.x <= x && x <= (rectangle.x + rectangle.size) && rectangle.y <= y && y <= (rectangle.y + rectangle.size))
-									{
-										return i; //возвращаем индекс объекта
-									}
-								}
-							}
-						}
-
-					}
-				}
-			}
-			return -1;
-		}
-
-		private void radioButtonEllipse_CheckedChanged(object sender, EventArgs e) //обработчик события проверки изменения значения RadioButton круга
-		{
-			figureSelect = 1;
-			if (radioButtonEllipse.Checked == false) // если не выбрана фигура
-			{
-				figureSelect = 0;
-			}
-		}
-
-		private void radioButtonLine_CheckedChanged(object sender, EventArgs e) //обработчик события проверки изменения значения RadioButton отрезка
-		{
-			figureSelect = 2;
-			if (radioButtonLine.Checked == false) // если не выбрана фигура
-			{
-				figureSelect = 0;
-			}
-		}
-
-		private void radioButtonRectangle_CheckedChanged(object sender, EventArgs e) //обработчик события проверки изменения значения RadioButton квадрата
-		{
-			figureSelect = 3;
-			if (radioButtonRectangle.Checked == false) // если не выбрана фигура
-			{
-				figureSelect = 0;
 			}
 		}
 
